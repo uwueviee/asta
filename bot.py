@@ -34,4 +34,7 @@ async def on_message(message):
         await client.send_message(message.channel, 'Done sleeping')
     elif message.content.startswith('!osu'):
         await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname='+message.content.strip('!osu '))
+
+    elif message.content.startswith("!suicide pervention"):
+        await client.send_message(message.channel,"Dont do it"+" You are amazing"+" kys")
 client.run(botToken)
