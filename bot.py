@@ -37,8 +37,9 @@ async def on_message(message):
         await asyncio.sleep(5)
         await client.send_message(message.channel, 'Done sleeping')
     elif message.content.startswith(prefix+'osu'):
-        await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname='+message.content.strip(prefix+'osu '))
-        print(message.author.name+" just ran !osu with the username being searched "+message.content.strip(prefix+'osu '))
+        newmessage = message.content.split(' ')
+        await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname='+newmessage[3])
+        print(message.author.name+" just ran !osu with the username being searched "+newmessage[3])
     elif message.content.startswith(prefix+'eightball') or message.content.startswith(prefix+'8ball') or message.content.startswith(prefix+'8-ball') or message.content.startswith(prefix+'eight-ball'):
         num = random.randint(0,6)
         if num == 0:
