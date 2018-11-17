@@ -34,4 +34,5 @@ async def on_message(message):
         await client.send_message(message.channel, 'Done sleeping')
     elif message.content.startswith(prefix+'osu'):
         await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname='+message.content.strip(prefix+'osu '))
+        print(message.author.name+" just ran !osu with the username being searched "+message.content.strip(prefix+'osu '))
 client.run(botToken)
