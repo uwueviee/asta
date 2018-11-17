@@ -1,3 +1,7 @@
 {
-    "token":"insert token here"
+    "token":"insert token here",
+    "FORTNITE_TOKEN":"",
+    "FORTNITE_LAUNCHER":"",
+    "FORTNITE_PASSWORD":"",
+    "FORTNITE_EMAIL":""
 }

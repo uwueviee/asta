@@ -15,7 +15,8 @@ In order to get started with Project ASTA you will need a couple of programs and
 2. [Python 3.6.6](https://www.python.org/downloads/release/python-366/), Python 3.7 is not supported by discord.py and PyNaCl so using Python 3.6.6 is required. Make sure when installing you select the option "Add Python 3.6 to PATH"
 
 3. discord.py, to install discord.py, use `python -m pip install -U discord.py[voice]` or `python3 -m pip install -U discord.py[voice]
-` in a terminal (On Windows use Powershell or Command Prompt).
+   ` in a terminal (On Windows use Powershell or Command Prompt).
+
 4. Clone the repo, using GitHub Desktop, clone the repo.
 
 5. Edit config.json, in the same folder as the repo rename config.json.example and edit it.
