@@ -16,13 +16,8 @@ In order to get started with Project ASTA you will need a couple of programs and
 
 3. discord.py, to install discord.py, use `python -m pip install -U discord.py[voice]` or `python3 -m pip install -U discord.py[voice]
 ` in a terminal.
-4. Using GitHub Desktop, clone the repo.
+4. Clone the repo, using GitHub Desktop, clone the repo.
 
-5. Create config.json, in the same folder as the repo create a file named config.json that contains
-```
-{
-    "token" : "and the token that you got in the Developer Portal here"
-}
-```
+5. Edit config.json, in the same folder as the repo rename config.json.example and edit it.
 
 At this point you should be able to start the bot up and test it out.
