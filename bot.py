@@ -55,4 +55,16 @@ async def on_message(message):
             await client.send_message(message.channel, 'No!')
         elif num == 6:
             await client.send_message(message.channel, 'Are you crazy?!')
+    elif message.content.startswith(prefix+'fortnite'):
+        newmessage = message.content.split(' ')
+        if newmessage[4] == 'pc':
+            stats = fortnite.battle_royale_stats(username=newmessage[3], platform=Platform.pc)
+        elif newmessage[4] == 'xbox':
+            stats = fortnite.battle_royale_stats(username=newmessage[3], platform=Platform.xb1)
+        elif newmessage[4] == 'ps4':
+            stats = fortnite.battle_royale_stats(username=newmessage[3], platform=Platform.ps4)
+        await client.send_message(message.channel, (f'Solo Wins: {stats.solo.wins}'))
+        await client.send_message(message.channel, (f'Duo Wins: {stats.duo.wins}' ))
+        await client.send_message(message.channel, (f'Squad Wins: {stats.duo.wins}'))
+        await client.send_message(message.channel, (f'Lifetime Wins: {stats.all.wins}'))
 client.run(botToken)
