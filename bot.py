@@ -8,6 +8,7 @@ configJSON = open(os.path.join(__location__, "config.json"), "r")
 
 config = json.load(configJSON)
 botToken = config["token"]
+prefix = "!"
 
 client = discord.Client()
 
@@ -31,5 +32,6 @@ async def on_message(message):
     elif message.content.startswith('!sleep'):
         await asyncio.sleep(5)
         await client.send_message(message.channel, 'Done sleeping')
-
+    elif message.content.startswith('!osu'):
+        await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname='+message.content.strip('!osu '))
 client.run(botToken)
