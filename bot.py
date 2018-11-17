@@ -3,6 +3,7 @@ import asyncio
 import json
 import os
 import random
+from pfaw import Fortnite, Platform, Mode
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 configJSON = open(os.path.join(__location__, "config.json"), "r")
@@ -10,6 +11,8 @@ configJSON = open(os.path.join(__location__, "config.json"), "r")
 config = json.load(configJSON)
 botToken = config["token"]
 prefix = "hey asta! "
+fortnite = Fortnite(fortnite_token=config["FORTNITE_TOKEN"], launcher_token=config["FORTNITE_LAUNCHER"],
+                    password=config["FORTNITE_PASSWORD"], email=config["FORTNITE_EMAIL"])
 
 client = discord.Client()
 
@@ -52,4 +55,4 @@ async def on_message(message):
             await client.send_message(message.channel, 'No!')
         elif num == 6:
             await client.send_message(message.channel, 'Are you crazy?!')
-client.run(botToken)    
+client.run(botToken)
