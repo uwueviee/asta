@@ -176,5 +176,7 @@ async def on_message(message):
             print(membersArray[killed])
             print(message.server.get_member(membersArray[killed]))
             await client.send_message(message.channel, message.server.get_member(membersArray[killed]).nick + " was killed by the server")
+    elif message.content.startswith(prefix):
+        await client.send_message(message.channel, "Unknown Command")
 
 client.run(botToken)
