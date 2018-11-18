@@ -92,10 +92,14 @@ async def on_message(message):
         await client.send_message(message.channel, (f'Duo win percentage: {round(duopercent,2)}'))
         await client.send_message(message.channel, (f'Squads win percentage: {round(squadpercent,2)}'))
         await client.send_message(message.channel, (f'Total win percentage: {round(totalpercent,2)}'))
-    elif message.content.startswith(prefix + "Death to all"):
-        no = raw_input("This program will kill some one in your discord sever randomly, would you like to proceed(type 'YES' for yes, or 'NO' for no): ")
-        if no == "YES":
-            killed = random.choice(server.members).mention
-            await client.send_message(message.channel, killed + "Was killed by the server") 
+    elif message.content.startswith(prefix + "death"):
+        #await client.send_message(message.channel, "This program will kill someone in your discord sever randomly, would you like to proceed? (type 'YES' for yes, or 'NO' for no): ")
+        #if message.content.contains("yes"):
+        membersArray = list(message.server.members)
+        print(membersArray)
+        killed = random.randint(0,len(membersArray)-1)
+        print (membersArray[killed])
+        print (message.server.get_member(membersArray[killed]))
+        await client.send_message(message.channel, message.server.get_member(membersArray[killed]).nick + " was killed by the server") 
 
 client.run(botToken)
