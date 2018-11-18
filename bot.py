@@ -4,6 +4,7 @@ import json
 import os
 import random
 from pfaw import Fortnite, Platform, Mode
+from weather import Weather, Unit
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 configJSON = open(os.path.join(__location__, "config.json"), "r")
@@ -58,38 +59,100 @@ async def on_message(message):
             await client.send_message(message.channel, 'Are you crazy?!')
     elif message.content.startswith(prefix+'fortnite'):
         newmessage = message.content.split(' ')
-        if newmessage[4] == 'pc':
-            stats = fortnite.battle_royale_stats(username=newmessage[3], platform=Platform.pc)
-        elif newmessage[4] == 'xbox':
-            stats = fortnite.battle_royale_stats(username=newmessage[3], platform=Platform.xb1)
-        elif newmessage[4] == 'ps4':
-            stats = fortnite.battle_royale_stats(username=newmessage[3], platform=Platform.ps4)
-        await client.send_message(message.channel, (f'Solo Wins: {stats.solo.wins}'))
-        await client.send_message(message.channel, (f'Duo Wins: {stats.duo.wins}' ))
-        await client.send_message(message.channel, (f'Squad Wins: {stats.squad.wins}'))
-        await client.send_message(message.channel, (f'Lifetime Wins: {stats.all.wins}'))
-        await client.send_message(message.channel, (f'Solo Kills: {stats.solo.kills}'))
-        await client.send_message(message.channel, (f'Duo Kills: {stats.duo.kills}'))
-        await client.send_message(message.channel, (f'Squads Kills: {stats.squad.kills}'))
-        await client.send_message(message.channel, (f'Total Kills: {stats.all.kills}'))
-        totalkd = stats.all.kills / (stats.all.matches - stats.all.wins)
-        solokd = stats.solo.kills / (stats.solo.matches - stats.solo.wins)
-        duokd = stats.duo.kills / (stats.duo.matches - stats.duo.wins)
-        squadkd = stats.squad.kills / (stats.squad.matches - stats.squad.wins)
-        totalpercent = (stats.all.wins / stats.all.matches)*100
-        solopercent = (stats.solo.wins / stats.solo.matches)*100
-        duopercent = (stats.duo.wins / stats.duo.matches)*100
-        squadpercent = (stats.squad.wins / stats.squad.matches)*100
-        await client.send_message(message.channel, (f'Solo matches: {stats.solo.matches}'))
-        await client.send_message(message.channel, (f'Duo matches: {stats.duo.matches}'))
-        await client.send_message(message.channel, (f'Squads matches: {stats.squad.matches}'))
-        await client.send_message(message.channel, (f'Total matches: {stats.all.matches}'))
-        await client.send_message(message.channel, (f'Solo KD: {round(solokd,2)}'))
-        await client.send_message(message.channel, (f'Duo KD: {round(duokd,2)}'))
-        await client.send_message(message.channel, (f'Squads KD: {round(squadkd,2)}'))
-        await client.send_message(message.channel, (f'Total KD: {round(totalkd,2)}'))
-        await client.send_message(message.channel, (f'Solo win percentage: {round(solopercent,2)}'))
-        await client.send_message(message.channel, (f'Duo win percentage: {round(duopercent,2)}'))
-        await client.send_message(message.channel, (f'Squads win percentage: {round(squadpercent,2)}'))
-        await client.send_message(message.channel, (f'Total win percentage: {round(totalpercent,2)}'))
+        if newmessage.index('pc') > -1:
+            name = ""
+            for x in range(3,newmessage.index('pc')):
+                if x != 3:
+                    name = name + " " + newmessage[x]
+                else:
+                    name = name + newmessage[x]
+            stats = fortnite.battle_royale_stats(username=name, platform=Platform.pc)
+        elif newmessage.index('xbox') > -1:
+            name = ""
+            for x in range(3,newmessage.index('xbox')):
+                if x != 3:
+                    name = name + " " + newmessage[x]
+                else:
+                    name = name + newmessage[x]
+            stats = fortnite.battle_royale_stats(username=name, platform=Platform.xb1)
+        elif newmessage.index('ps4') > -1:
+            name = ""
+            for x in range(3,newmessage.index('ps4')):
+                if x != 3:
+                    name = name + " " + newmessage[x]
+                else:
+                    name = name + newmessage[x]
+            stats = fortnite.battle_royale_stats(username=name, platform=Platform.ps4)
+        
+        if stats.all.kills == 0 or stats.all.matches == 0:
+            totalkd = 0
+        else:
+            totalkd = stats.all.kills / (stats.all.matches - stats.all.wins)
+        
+        if stats.solo.kills == 0 or stats.solo.matches == 0:
+            solokd = 0
+        else:
+            solokd = stats.solo.kills / (stats.solo.matches - stats.solo.wins)
+        
+        if stats.duo.kills == 0 or stats.duo.matches == 0:
+            duokd = 0
+        else:
+            duokd = stats.duo.kills / (stats.duo.matches - stats.duo.wins)
+        
+        if stats.squad.kills == 0 or stats.squad.matches == 0:
+            squadkd = 0
+        else:
+            squadkd = stats.squad.kills / (stats.squad.matches - stats.squad.wins)
+        
+        if stats.all.wins == 0 or stats.all.matches == 0:
+            totalpercent = 0
+        else:
+            totalpercent = (stats.all.wins / stats.all.matches)*100
+        
+        if stats.solo.wins == 0 or stats.solo.matches == 0:
+            solopercent = 0
+        else:
+            solopercent = (stats.solo.wins / stats.solo.matches)*100
+        
+        if stats.duo.wins == 0 or stats.duo.matches == 0:
+            duopercent = 0
+        else:
+            duopercent = (stats.duo.wins / stats.duo.matches)*100
+        
+        if stats.squad.wins == 0 or stats.squad.matches == 0:
+            squadpercent = 0
+        else:
+            squadpercent = (stats.squad.wins / stats.squad.matches)*100
+        embed = discord.Embed(title=name+"'s Fortnite Stats", colour=discord.Colour(0x56faf6), url="", description="")
+        embed.set_thumbnail(url="")
+        embed.set_author(name="ASTA", url="https://discordapp.com", icon_url="")
+        embed.set_footer(text="ASTA Fortnite Stats", icon_url="")
+        embed.add_field(name="Solo Wins:", value=stats.solo.wins)
+        embed.add_field(name="Duo Wins:", value=stats.duo.wins)
+        embed.add_field(name="Squad Wins:", value=stats.squad.wins)
+        embed.add_field(name="Solo Kills:", value=stats.solo.kills)
+        embed.add_field(name="Duo Kills:", value=stats.duo.kills)
+        embed.add_field(name="Squad Kills:", value=stats.squad.kills)
+        embed.add_field(name="Solo Matches:", value=stats.solo.matches)
+        embed.add_field(name="Duo Matches:", value=stats.duo.matches)
+        embed.add_field(name="Squad KDR:", value=stats.squad.matches)
+        embed.add_field(name="Solo KDR:", value=round(solokd,2))
+        embed.add_field(name="Duo KDR:", value=round(duokd,2))
+        embed.add_field(name="Squad KDR:", value=round(squadkd,2))
+        embed.add_field(name="Solo Win Percentage:", value=round(solopercent,2))
+        embed.add_field(name="Duo Win Percentage:", value=round(duopercent,2))
+        embed.add_field(name="Squad Win Percentage:", value=round(squadpercent,2))
+        embed.add_field(name="Liftime Wins:", value=stats.all.wins)
+        embed.add_field(name="Lifetime Kills:", value=stats.all.kills)
+        embed.add_field(name="Lifetime Matches:", value=stats.all.matches)
+        embed.add_field(name="Lifetime KDR:", value=round(totalkd,2))
+        embed.add_field(name="Lifetime Win Percentage:", value=round(totalpercent,2))
+        await client.send_message(message.channel, embed=embed)
+    elif message.content.startswith(prefix+'weather'):
+        messagelist = message.content.split(' ')
+        weather = Weather(unit=Unit.CELSIUS)
+        location = weather.lookup_by_location(messagelist[2])
+        conditions = location.condition
+        print (conditions)
+        await client.send_message(message.channel, conditions.text)
 client.run(botToken)
