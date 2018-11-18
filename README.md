@@ -1,5 +1,6 @@
 # Project ASTA
 
+[![CircleCI](https://circleci.com/gh/PretzelCA/asta.svg?style=svg&circle-token=da4bbe2d56d4cb3ca352f99ee9fc06cc80b1b916)](https://circleci.com/gh/PretzelCA/asta)
 10/10 best discord bot
 
 ## Getting Started
