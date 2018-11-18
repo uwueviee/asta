@@ -5,6 +5,7 @@ import random
 from pfaw import Fortnite, Platform
 from weather import Weather, Unit
 
+
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 configJSON = open(os.path.join(__location__, "config.json"), "r")
 
@@ -119,7 +120,7 @@ async def on_message(message):
             squadpercent = (stats.squad.wins / stats.squad.matches) * 100
         embed = discord.Embed(title=name + "'s Fortnite Stats", colour=discord.Colour(0x56faf6), url="", description="")
         embed.set_thumbnail(url="")
-        embed.set_author(name="ASTA", url="https://discordapp.com", icon_url="")
+        embed.set_author(name="ASTA", url="", icon_url="")
         embed.set_footer(text="ASTA Fortnite Stats", icon_url="")
         embed.add_field(name="Solo Wins:", value=stats.solo.wins)
         embed.add_field(name="Duo Wins:", value=stats.duo.wins)
@@ -144,11 +145,25 @@ async def on_message(message):
         await client.send_message(message.channel, embed=embed)
     elif message.content.startswith(prefix + 'weather'):
         messagelist = message.content.split(' ')
-        weather = Weather(unit=Unit.CELSIUS)
-        location = weather.lookup_by_location(messagelist[2])
-        conditions = location.condition
-        print(conditions)
-        await client.send_message(message.channel, conditions.text)
+        if messagelist[3] == 'c':
+            weather = Weather(unit=Unit.CELSIUS)
+        elif messagelist[3] == 'f':
+            weather = Weather(unit=Unit.FAHRENHEIT)
+        location = weather.lookup_by_location(messagelist[4])
+        embed = discord.Embed(title="Weather", colour=discord.Colour(0x56faf6), url="", description="")
+        embed.set_thumbnail(url="")
+        embed.set_author(name="ASTA", url="", icon_url="")
+        embed.add_field(name="Temperature:", value=location.condition.temp)
+        embed.add_field(name="Condition:", value=location.condition.text)
+        embed.add_field(name="Location:", value=location.location.country + ", " + location.location.region + ", " + location.location.city)
+        embed.add_field(name="Humidity:", value=location.atmosphere.humidity)
+        embed.add_field(name="Longitude:", value=location.longitude)
+        embed.add_field(name="Latitude:", value=location.latitude)
+        embed.add_field(name="Wind Chill:", value=location.wind.chill)
+        embed.add_field(name="Wind Direction:", value=location.wind.direction + " degrees")
+        weather = Weather(unit=Unit.FAHRENHEIT)
+        embed.add_field(name="Wind Speed:", value=location.wind.speed)
+        await client.send_message(message.channel, embed=embed)
     elif message.content.startswith(prefix + "death"):
 
             # W I P
