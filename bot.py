@@ -177,6 +177,8 @@ async def on_message(message):
             print(message.server.get_member(membersArray[killed]))
             await client.send_message(message.channel, message.server.get_member(membersArray[killed]).nick + " was killed by the server")
     elif message.content.startswith(prefix):
-        await client.send_message(message.channel, "Unknown Command")
+        embed = discord.Embed(title="ASTA - Command Not Found", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Command not found, commands can be found [here](https://pretzelca.github.io/asta/commands.html)")
+        embed.set_footer(text="ASTA Command Not Found")
+        await client.send_message(message.channel, embed=embed)
 
 client.run(botToken)
