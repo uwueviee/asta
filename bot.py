@@ -35,6 +35,10 @@ async def on_message(message):
             if log.author == message.author:
                 counter += 1
         await client.edit_message(tmp, 'You have {} messages.'.format(counter))
+    elif message.content.startswith(prefix + 'help'):
+        embed = discord.Embed(title="ASTA - Help", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Help can be found [here](https://pretzelca.github.io/asta/commands.html)")
+        embed.set_footer(text="ASTA Help")
+        await client.send_message(message.channel, embed=embed)
     elif message.content.startswith(prefix + 'osu'):
         newmessage = message.content.split(' ')
         await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname=' + newmessage[3])

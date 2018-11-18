@@ -15,11 +15,13 @@ In order to get started with Project ASTA you will need a couple of programs and
 
 2. [Python 3.6.6](https://www.python.org/downloads/release/python-366/), Python 3.7 is not supported by discord.py and PyNaCl so using Python 3.6.6 is required. Make sure when installing you select the option "Add Python 3.6 to PATH"
 
-3. discord.py, to install discord.py, use `python -m pip install -U discord.py[voice]` or `python3 -m pip install -U discord.py[voice]
+3. flake8, flake8 is Project ASTA's linter and as such requires it to be installed and used. Install flake8 using `python -m pip install -U flake8` or `python3 -m pip install -U flake8` and then set your enviroment of choice to use flake8.
+
+4. discord.py, to install discord.py, use `python -m pip install -U discord.py[voice]` or `python3 -m pip install -U discord.py[voice]
    ` in a terminal (On Windows use Powershell or Command Prompt).
 
-4. Clone the repo, using GitHub Desktop, clone the repo.
+5. Clone the repo, using GitHub Desktop, clone the repo.
 
-5. Edit config.json, in the same folder as the repo rename config.json.example and edit it.
+6. Edit config.json, in the same folder as the repo rename config.json.example and edit it.
 
 At this point you should be able to start the bot up and test it out.
