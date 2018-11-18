@@ -155,4 +155,10 @@ async def on_message(message):
         conditions = location.condition
         print (conditions)
         await client.send_message(message.channel, conditions.text)
+    elif message.content.startswith(prefix + "Death to all"):
+        no = raw_input("This program will kill some one in your discord sever randomly, would you like to proceed(type 'YES' for yes, or 'NO' for no): ")
+        if no == "YES":
+            killed = random.choice(server.members).mention
+            await client.send_message(message.channel, killed + "Was killed by the server") 
+
 client.run(botToken)
