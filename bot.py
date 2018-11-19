@@ -2,6 +2,7 @@ import discord
 import json
 import os
 import random
+import re
 from pfaw import Fortnite, Platform
 from weather import Weather, Unit
 
@@ -20,6 +21,7 @@ client = discord.Client()
 
 @client.event
 async def on_ready():
+    print('------')
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
@@ -28,10 +30,12 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    if message.author == client.user:
+        return
     message.content = message.content.lower()
     if message.content.startswith(prefix + 'ping'):
         counter = 0
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
+        tmp = await message.channel.send('Calculating messages...')
         async for log in client.logs_from(message.channel, limit=100):
             if log.author == message.author:
                 counter += 1
@@ -39,27 +43,27 @@ async def on_message(message):
     elif message.content.startswith(prefix + 'help'):
         embed = discord.Embed(title="ASTA - Help", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Help can be found [here](https://pretzelca.github.io/asta/commands.html)")
         embed.set_footer(text="ASTA Help")
-        await client.send_message(message.channel, embed=embed)
+        await message.channel.send(embed=embed)
     elif message.content.startswith(prefix + 'osu'):
         newmessage = message.content.split(' ')
-        await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname=' + newmessage[3])
+        await message.channel.send('https://lemmmy.pw/osusig/sig.php?colour=pink&uname=' + newmessage[3])
         print(message.author.name + " just ran !osu with the username being searched " + newmessage[3])
     elif message.content.startswith(prefix + 'eightball') or message.content.startswith(prefix + '8ball') or message.content.startswith(prefix + '8-ball') or message.content.startswith(prefix + 'eight-ball'):
         num = random.randint(0, 6)
         if num == 0:
-            await client.send_message(message.channel, 'Certainly!')
+            await message.channel.send('Certainly!')
         elif num == 1:
-            await client.send_message(message.channel, 'Most likely')
+            await message.channel.send('Most likely')
         elif num == 2:
-            await client.send_message(message.channel, "I'm not sure :/")
+            await message.channel.send("I'm not sure :/")
         elif num == 3:
-            await client.send_message(message.channel, 'Unlikely')
+            await message.channel.send('Unlikely')
         elif num == 4:
-            await client.send_message(message.channel, 'Yes!')
+            await message.channel.send('Yes!')
         elif num == 5:
-            await client.send_message(message.channel, 'No!')
+            await message.channel.send('No!')
         elif num == 6:
-            await client.send_message(message.channel, 'Are you crazy?!')
+            await message.channel.send('Are you crazy?!')
     elif message.content.startswith(prefix + 'fortnite'):
         newmessage = message.content.split(' ')
         if newmessage.index('pc') > -1:
@@ -142,9 +146,10 @@ async def on_message(message):
         embed.add_field(name="Lifetime Matches:", value=stats.all.matches)
         embed.add_field(name="Lifetime KDR:", value=round(totalkd, 2))
         embed.add_field(name="Lifetime Win Percentage:", value=round(totalpercent, 2))
-        await client.send_message(message.channel, embed=embed)
+        await message.channel.send(embed=embed)
     elif message.content.startswith(prefix + 'weather'):
         messagelist = message.content.split(' ')
+        weather = ""
         if messagelist[3] == 'c':
             weather = Weather(unit=Unit.CELSIUS)
         elif messagelist[3] == 'f':
@@ -161,24 +166,32 @@ async def on_message(message):
         embed.add_field(name="Latitude:", value=location.latitude)
         embed.add_field(name="Wind Chill:", value=location.wind.chill)
         embed.add_field(name="Wind Direction:", value=location.wind.direction + " degrees")
-        weather = Weather(unit=Unit.FAHRENHEIT)
+        # weather = Weather(unit=Unit.FAHRENHEIT) This probably shouldn't be here, right?
         embed.add_field(name="Wind Speed:", value=location.wind.speed)
-        await client.send_message(message.channel, embed=embed)
+        await message.channel.send(embed=embed)
     elif message.content.startswith(prefix + "death"):
 
             # W I P
 
-            # await client.send_message(message.channel, "This program will kill someone in your discord sever randomly, would you like to proceed? (type 'YES' for yes, or 'NO' for no): ")
+            # await message.channel.send("This program will kill someone in your discord sever randomly, would you like to proceed? (type 'YES' for yes, or 'NO' for no): ")
             # if message.content.contains("yes"):
             membersArray = list(message.server.members)
             print(membersArray)
             killed = random.randint(0, len(membersArray) - 1)
             print(membersArray[killed])
             print(message.server.get_member(membersArray[killed]))
-            await client.send_message(message.channel, message.server.get_member(membersArray[killed]).nick + " was killed by the server")
+            await message.channel.send(message.server.get_member(membersArray[killed]).nick + " was killed by the server")
+    elif message.content.startswith(prefix + "echo"):
+        finalMessage = re.sub(prefix + 'echo ', "", message.content)
+        await message.channel.send(finalMessage)
+    elif message.content.startswith(prefix + "stats"):
+        embed = discord.Embed(title="ASTA Statistics", colour=discord.Colour(0x56faf6), url="", description="")
+        embed.add_field(name="Amount Of Servers:", value=len(client.guilds), inline=True)
+        embed.add_field(name="Amount Of Users:", value=len(client.users), inline=True)
+        await message.channel.send(embed=embed)
     elif message.content.startswith(prefix):
         embed = discord.Embed(title="ASTA - Command Not Found", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Command not found, commands can be found [here](https://pretzelca.github.io/asta/commands.html)")
         embed.set_footer(text="ASTA Command Not Found")
-        await client.send_message(message.channel, embed=embed)
+        await message.channel.send(embed=embed)
 
 client.run(botToken)
