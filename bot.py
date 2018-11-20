@@ -3,9 +3,9 @@ import asyncio
 import json
 import os
 import random
+import re
 from pfaw import Fortnite, Platform
 from weather import Weather, Unit
-from discord import voice_client
 import youtube_dl
 
 
@@ -22,6 +22,8 @@ client = discord.Client()
 startup_extensions = ["Music"]
 players = {}
 
+voiceCon = ""
+
 
 @client.event
 async def on_ready():
@@ -35,14 +37,19 @@ ytdl_format_options = {
     'format': 'bestaudio/best',
     'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
     'restrictfilenames': True,
-    'noplaylist': True,
+    'noplaylist': False,
     'nocheckcertificate': True,
     'ignoreerrors': True,
     'logtostderr': False,
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+    'source_address': '0.0.0.0',  # bind to ipv4 since ipv6 addresses cause issues sometimes
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }]
 }
 
 ffmpeg_options = {
@@ -61,16 +68,19 @@ class YTDLSource(discord.PCMVolumeTransformer):
 
     @classmethod
     async def from_url(cls, url, *, loop=None, stream=True):
+        print(url)
         loop = loop or asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
-        if 'entries' in data:
-            # take first item from a playlist
-            data = data['entries'][0]
+        if "entries" in data:
+            data = data["entries"][0]
         filename = data['url'] if stream else ytdl.prepare_filename(data)
         return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
+
 @client.event
 async def on_message(message):
+    global voiceCon
+    nonLow = message.content
     message.content = message.content.lower()
     if message.content.startswith(prefix + 'ping'):
         counter = 0
@@ -228,23 +238,21 @@ async def on_message(message):
         embed.add_field(name="Amount Of Users:", value=len(client.users), inline=True)
         await message.channel.send(embed=embed)
     elif message.content.startswith(prefix + "play"):
-        newmessage = message.content.split(' ')
+        newmessage = nonLow.split(' ')
         authors = message.author
         voiceCon = await authors.voice.channel.connect()
-        # print(voicechannelid)
-        # await authors.voice.channel.connect()
-        # vc = voice_client(message.guild)
-        # print(vc)
         print(newmessage[3])
-        #player = await YTDLSource.from_url(newmessage[3])
-        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("ewe.mp3"))
-        voiceCon.play(source)
-    elif message.content.startswith(prefix + "join"):
-        voicechannel = message.author.voice_channel
-        await client.join_voice_channel(voicechannel)
+        player = await YTDLSource.from_url(newmessage[3])
+        voiceCon.play(player)
+        await message.channel.send("Now playing: " + player.title)
+    elif message.content.startswith(prefix + "stop") or message.content.startswith(prefix + "disconnect"):
+        try:
+            await voiceCon.disconnect()
+        except (TypeError):
+            await message.channel.send("Not in your voice channel." + TypeError)
     elif message.content.startswith(prefix):
         embed = discord.Embed(title="ASTA - Command Not Found", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Command not found, commands can be found [here](https://pretzelca.github.io/asta/commands.html)")
         embed.set_footer(text="ASTA Command Not Found")
-        await client.send_message(message.channel, embed=embed)
+        await message.channel.send(embed=embed)
 
 client.run(botToken)
