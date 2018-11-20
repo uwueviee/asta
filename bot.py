@@ -257,7 +257,7 @@ async def on_message(message):
         voiceCon.play(player)
         await message.channel.send("Now playing: " + player.title)
     elif message.content.startswith(prefix + "coin"):
-        coin = random.randint(0,2)
+        coin = random.randint(0, 2)
         coinSides = ["Heads", "Tails"]
         await message.channel.send(coinSides[coin])
     elif message.content.startswith(prefix + "dice"):
@@ -265,7 +265,7 @@ async def on_message(message):
         print(len(newmessage))
         print(newmessage)
         if len(newmessage) == 3:
-            dice = random.randint(1,6)
+            dice = random.randint(1, 6)
             await message.channel.send(dice)
         else:
             dice = random.randint(1, int(newmessage[3]))
