@@ -1,10 +1,12 @@
 import discord
+import asyncio
 import json
 import os
 import random
-import re
 from pfaw import Fortnite, Platform
 from weather import Weather, Unit
+from discord import voice_client
+import youtube_dl
 
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -17,25 +19,62 @@ fortnite = Fortnite(fortnite_token=config["FORTNITE_TOKEN"], launcher_token=conf
                     password=config["FORTNITE_PASSWORD"], email=config["FORTNITE_EMAIL"])
 
 client = discord.Client()
+startup_extensions = ["Music"]
+players = {}
 
 
 @client.event
 async def on_ready():
-    print('------')
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
 
 
+ytdl_format_options = {
+    'format': 'bestaudio/best',
+    'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+    'restrictfilenames': True,
+    'noplaylist': True,
+    'nocheckcertificate': True,
+    'ignoreerrors': False,
+    'logtostderr': False,
+    'quiet': True,
+    'no_warnings': True,
+    'default_search': 'auto',
+    'source_address': '0.0.0.0' # bind to ipv4 since ipv6 addresses cause issues sometimes
+}
+
+ffmpeg_options = {
+    'options': '-vn'
+}
+
+ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+
+
+class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+        self.data = data
+        self.title = data.get('title')
+        self.url = data.get('url')
+
+    @classmethod
+    async def from_url(cls, url, *, loop=None, stream=True):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+        if 'entries' in data:
+            # take first item from a playlist
+            data = data['entries'][0]
+        filename = data['url'] if stream else ytdl.prepare_filename(data)
+        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
+
 @client.event
 async def on_message(message):
-    if message.author == client.user:
-        return
     message.content = message.content.lower()
     if message.content.startswith(prefix + 'ping'):
         counter = 0
-        tmp = await message.channel.send('Calculating messages...')
+        tmp = await client.send_message(message.channel, 'Calculating messages...')
         async for log in client.logs_from(message.channel, limit=100):
             if log.author == message.author:
                 counter += 1
@@ -43,27 +82,27 @@ async def on_message(message):
     elif message.content.startswith(prefix + 'help'):
         embed = discord.Embed(title="ASTA - Help", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Help can be found [here](https://pretzelca.github.io/asta/commands.html)")
         embed.set_footer(text="ASTA Help")
-        await message.channel.send(embed=embed)
+        await client.send_message(message.channel, embed=embed)
     elif message.content.startswith(prefix + 'osu'):
         newmessage = message.content.split(' ')
-        await message.channel.send('https://lemmmy.pw/osusig/sig.php?colour=pink&uname=' + newmessage[3])
+        await client.send_message(message.channel, 'https://lemmmy.pw/osusig/sig.php?colour=pink&uname=' + newmessage[3])
         print(message.author.name + " just ran !osu with the username being searched " + newmessage[3])
     elif message.content.startswith(prefix + 'eightball') or message.content.startswith(prefix + '8ball') or message.content.startswith(prefix + '8-ball') or message.content.startswith(prefix + 'eight-ball'):
         num = random.randint(0, 6)
         if num == 0:
-            await message.channel.send('Certainly!')
+            await client.send_message(message.channel, 'Certainly!')
         elif num == 1:
-            await message.channel.send('Most likely')
+            await client.send_message(message.channel, 'Most likely')
         elif num == 2:
-            await message.channel.send("I'm not sure :/")
+            await client.send_message(message.channel, "I'm not sure :/")
         elif num == 3:
-            await message.channel.send('Unlikely')
+            await client.send_message(message.channel, 'Unlikely')
         elif num == 4:
-            await message.channel.send('Yes!')
+            await client.send_message(message.channel, 'Yes!')
         elif num == 5:
-            await message.channel.send('No!')
+            await client.send_message(message.channel, 'No!')
         elif num == 6:
-            await message.channel.send('Are you crazy?!')
+            await client.send_message(message.channel, 'Are you crazy?!')
     elif message.content.startswith(prefix + 'fortnite'):
         newmessage = message.content.split(' ')
         if newmessage.index('pc') > -1:
@@ -146,10 +185,9 @@ async def on_message(message):
         embed.add_field(name="Lifetime Matches:", value=stats.all.matches)
         embed.add_field(name="Lifetime KDR:", value=round(totalkd, 2))
         embed.add_field(name="Lifetime Win Percentage:", value=round(totalpercent, 2))
-        await message.channel.send(embed=embed)
+        await client.send_message(message.channel, embed=embed)
     elif message.content.startswith(prefix + 'weather'):
         messagelist = message.content.split(' ')
-        weather = ""
         if messagelist[3] == 'c':
             weather = Weather(unit=Unit.CELSIUS)
         elif messagelist[3] == 'f':
@@ -166,32 +204,47 @@ async def on_message(message):
         embed.add_field(name="Latitude:", value=location.latitude)
         embed.add_field(name="Wind Chill:", value=location.wind.chill)
         embed.add_field(name="Wind Direction:", value=location.wind.direction + " degrees")
-        # weather = Weather(unit=Unit.FAHRENHEIT) This probably shouldn't be here, right?
+        weather = Weather(unit=Unit.FAHRENHEIT)
         embed.add_field(name="Wind Speed:", value=location.wind.speed)
-        await message.channel.send(embed=embed)
+        await client.send_message(message.channel, embed=embed)
     elif message.content.startswith(prefix + "death"):
 
             # W I P
 
-            # await message.channel.send("This program will kill someone in your discord sever randomly, would you like to proceed? (type 'YES' for yes, or 'NO' for no): ")
+            # await client.send_message(message.channel, "This program will kill someone in your discord sever randomly, would you like to proceed? (type 'YES' for yes, or 'NO' for no): ")
             # if message.content.contains("yes"):
             membersArray = list(message.server.members)
             print(membersArray)
             killed = random.randint(0, len(membersArray) - 1)
             print(membersArray[killed])
             print(message.server.get_member(membersArray[killed]))
-            await message.channel.send(message.server.get_member(membersArray[killed]).nick + " was killed by the server")
+            await client.send_message(message.channel, message.server.get_member(membersArray[killed]).nick + " was killed by the server")
     elif message.content.startswith(prefix + "echo"):
-        finalMessage = re.sub(prefix + 'echo ', "", message.content)
+        finalMessage = re.sub(prefix + 'echo ', "", message.clean_content)
         await message.channel.send(finalMessage)
     elif message.content.startswith(prefix + "stats"):
         embed = discord.Embed(title="ASTA Statistics", colour=discord.Colour(0x56faf6), url="", description="")
         embed.add_field(name="Amount Of Servers:", value=len(client.guilds), inline=True)
         embed.add_field(name="Amount Of Users:", value=len(client.users), inline=True)
         await message.channel.send(embed=embed)
+    elif message.content.startswith(prefix + "play"):
+        newmessage = message.content.split(' ')
+        authors = message.author
+        await authors.voice.channel.connect()
+        # print(voicechannelid)
+        # await authors.voice.channel.connect()
+        # vc = voice_client(message.guild)
+        # print(vc)
+        print(newmessage[3])
+        #player = await YTDLSource.from_url(newmessage[3])
+        source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("ewe.mp3"))
+        discord.voice_client.play(source)
+    elif message.content.startswith(prefix + "join"):
+        voicechannel = message.author.voice_channel
+        await client.join_voice_channel(voicechannel)
     elif message.content.startswith(prefix):
         embed = discord.Embed(title="ASTA - Command Not Found", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Command not found, commands can be found [here](https://pretzelca.github.io/asta/commands.html)")
         embed.set_footer(text="ASTA Command Not Found")
-        await message.channel.send(embed=embed)
+        await client.send_message(message.channel, embed=embed)
 
 client.run(botToken)

@@ -2,3 +2,4 @@ fortnite
 git+https://github.com/Rapptz/discord.py@rewrite
 weather-api
 flake8
+youtube-dl
