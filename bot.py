@@ -37,7 +37,7 @@ ytdl_format_options = {
     'restrictfilenames': True,
     'noplaylist': True,
     'nocheckcertificate': True,
-    'ignoreerrors': False,
+    'ignoreerrors': True,
     'logtostderr': False,
     'quiet': True,
     'no_warnings': True,
@@ -230,7 +230,7 @@ async def on_message(message):
     elif message.content.startswith(prefix + "play"):
         newmessage = message.content.split(' ')
         authors = message.author
-        await authors.voice.channel.connect()
+        voiceCon = await authors.voice.channel.connect()
         # print(voicechannelid)
         # await authors.voice.channel.connect()
         # vc = voice_client(message.guild)
@@ -238,7 +238,7 @@ async def on_message(message):
         print(newmessage[3])
         #player = await YTDLSource.from_url(newmessage[3])
         source = discord.PCMVolumeTransformer(discord.FFmpegPCMAudio("ewe.mp3"))
-        discord.voice_client.play(source)
+        voiceCon.play(source)
     elif message.content.startswith(prefix + "join"):
         voicechannel = message.author.voice_channel
         await client.join_voice_channel(voicechannel)
