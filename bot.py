@@ -249,7 +249,7 @@ async def on_message(message):
         try:
             await voiceCon.disconnect()
         except (TypeError):
-            await message.channel.send("Not in your voice channel." + TypeError)
+            print(TypeError)
     elif message.content.startswith(prefix):
         embed = discord.Embed(title="ASTA - Command Not Found", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Command not found, commands can be found [here](https://pretzelca.github.io/asta/commands.html)")
         embed.set_footer(text="ASTA Command Not Found")
