@@ -25,3 +25,5 @@ In order to get started with Project ASTA you will need a couple of programs and
 6. Edit config.json, in the same folder as the repo rename config.json.example and edit it.
 
 At this point you should be able to start the bot up and test it out.
+
+A mirror of the code is located at [GitLab](https://gitlab.com/pretzelca/asta/tree/master)
