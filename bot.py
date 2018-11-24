@@ -7,6 +7,8 @@ import re
 from pfaw import Fortnite, Platform
 from weather import Weather, Unit
 import youtube_dl
+from PyDictionary import PyDictionary
+
 
 
 __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -23,7 +25,6 @@ startup_extensions = ["Music"]
 players = {}
 
 voiceCon = ""
-
 
 @client.event
 async def on_ready():
@@ -270,6 +271,18 @@ async def on_message(message):
         else:
             dice = random.randint(1, int(newmessage[3]))
             await message.channel.send(dice)
+    elif message.content.startswith(prefix + "definition"):
+        print
+    elif message.content.startswith(prefix + "synonym"):
+        newmessage = nonLow.split(' ')
+        synonyms = PyDictionary.synonym(newmessage[3])
+        embed = discord.Embed(title="Synonyms for "+newmessage[3], colour=discord.Colour(0x56faf6), url="", description="")
+        embed.set_thumbnail(url="")
+        embed.set_author(name="ASTA", url="", icon_url="")
+        embed.set_footer(text="ASTA Synonyms", icon_url="")
+        for x in synonyms:
+            embed.add_field(name="", value=x)
+        await message.channel.send(embed=embed)
     elif message.content.startswith(prefix):
         embed = discord.Embed(title="ASTA - Command Not Found", colour=discord.Colour(0x56faf6), url="https://pretzelca.github.io/asta/commands.html", description="Command not found, commands can be found [here](https://pretzelca.github.io/asta/commands.html)")
         embed.set_footer(text="ASTA Command Not Found")
